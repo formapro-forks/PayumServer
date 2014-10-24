@@ -33,6 +33,13 @@ class FilesystemFactory implements FactoryInterface
     /**
      * {@inheritDoc}
      */
+    public function init(array $options)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getName()
     {
         return 'filesystem';

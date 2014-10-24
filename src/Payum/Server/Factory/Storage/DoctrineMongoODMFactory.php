@@ -60,7 +60,7 @@ class DoctrineMongoODMFactory implements FactoryInterface
 
         $driver = new MappingDriverChain;
 
-// payum's basic models
+        // payum's basic models
         $driver->addDriver(
             new XmlDriver(
                 new SymfonyFileLocator(array(
@@ -71,7 +71,7 @@ class DoctrineMongoODMFactory implements FactoryInterface
             'Payum\Core\Model'
         );
 
-// your models
+        // your models
         AnnotationDriver::registerAnnotationClasses();
         $driver->addDriver(
             new AnnotationDriver(new AnnotationReader(), array(
@@ -92,6 +92,13 @@ class DoctrineMongoODMFactory implements FactoryInterface
         $connection = new Connection($options['port'], array(), $config);
 
         return new DoctrineStorage(DocumentManager::create($connection, $config), $modelClass);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function init(array $options)
+    {
     }
 
     /**

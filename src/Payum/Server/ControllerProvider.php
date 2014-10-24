@@ -74,6 +74,7 @@ class ControllerProvider implements ServiceProviderInterface
             return new ApiStorageConfigController(
                 $app['form.factory'],
                 $app['url_generator'],
+                $app['api.view.form_to_json_converter'],
                 $app['payum.storage_factories'],
                 $app['payum.config'],
                 $app['payum.config_file']

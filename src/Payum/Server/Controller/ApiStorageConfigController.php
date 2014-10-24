@@ -32,6 +32,11 @@ class ApiStorageConfigController
     private $formToJsonConverter;
 
     /**
+     * @var FactoryInterface[]
+     */
+    private $factories;
+
+    /**
      * @var array
      */
     private $currentConfig;
@@ -45,6 +50,7 @@ class ApiStorageConfigController
      * @param FormFactoryInterface $formFactory
      * @param UrlGeneratorInterface $urlGenerator
      * @param FormToJsonConverter $formToJsonConverter
+     * @param FactoryInterface[] $factories
      * @param array $currentConfig
      * @param string $configFile
      */
@@ -52,14 +58,16 @@ class ApiStorageConfigController
         FormFactoryInterface $formFactory,
         UrlGeneratorInterface $urlGenerator,
         FormToJsonConverter $formToJsonConverter,
+        array $factories,
         $currentConfig,
         $configFile
     ) {
         $this->formFactory = $formFactory;
         $this->urlGenerator = $urlGenerator;
+        $this->formToJsonConverter = $formToJsonConverter;
+        $this->factories = $factories;
         $this->currentConfig = $currentConfig;
         $this->configFile = $configFile;
-        $this->formToJsonConverter = $formToJsonConverter;
     }
 
     public function updateOrderAction($content)

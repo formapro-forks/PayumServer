@@ -1,6 +1,7 @@
 <?php
 namespace Payum\Server\Model;
 
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as Mongo;
 use Payum\Core\Model\Order as BaseOrder;
 use Payum\Core\Request\GetHumanStatus;
@@ -8,11 +9,18 @@ use Payum\Core\Security\TokenInterface;
 
 /**
  * @Mongo\Document
+ *
+ * @ORM\Table
+ * @ORM\Entity
  */
 class Order extends BaseOrder
 {
     /**
      * @Mongo\Id
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      *
      * @var integer $id
      */

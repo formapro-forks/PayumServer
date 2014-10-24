@@ -21,6 +21,11 @@ interface FactoryInterface
     function createStorage($modelClass, $idProperty, array $options);
 
     /**
+     * @param array $options
+     */
+    function init(array $options);
+
+    /**
      * @return string
      */
     function getName();
