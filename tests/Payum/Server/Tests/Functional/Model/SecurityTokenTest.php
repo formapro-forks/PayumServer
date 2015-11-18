@@ -86,7 +86,7 @@ class SecurityTokenTest extends WebTestCase
         $payment = $paymentStorage->create();
 
         $payment->setId(uniqid());
-        $payment->setGatewayName('theGatewayName');
+        $payment->getGatewayConfig()->setGatewayName('theGatewayName');
 
         $paymentStorage->update($payment);
 

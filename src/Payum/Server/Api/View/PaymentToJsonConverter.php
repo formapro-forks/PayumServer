@@ -2,7 +2,6 @@
 namespace Payum\Server\Api\View;
 
 use Payum\Core\Registry\GatewayRegistryInterface;
-use Payum\Core\Request\GetHumanStatus;
 use Payum\Server\Model\Payment;
 
 class PaymentToJsonConverter
@@ -13,11 +12,18 @@ class PaymentToJsonConverter
     private $registry;
 
     /**
-     * @param GatewayRegistryInterface $registry
+     * @var GatewayConfigToJsonConverter
      */
-    public function __construct(GatewayRegistryInterface $registry)
+    private $gatewayConfigToJsonConverter;
+
+    /**
+     * @param GatewayRegistryInterface $registry
+     * @param GatewayConfigToJsonConverter $gatewayConfigToJsonConverter
+     */
+    public function __construct(GatewayRegistryInterface $registry, GatewayConfigToJsonConverter $gatewayConfigToJsonConverter)
     {
         $this->registry = $registry;
+        $this->gatewayConfigToJsonConverter = $gatewayConfigToJsonConverter;
     }
 
     /**
@@ -27,10 +33,9 @@ class PaymentToJsonConverter
      */
     public function convert(Payment $payment)
     {
-        $normalizedPayment = [
+        return [
             'id' => $payment->getId(),
             'status' => $payment->getStatus(),
-            'gatewayName' => $payment->getGatewayName(),
             'number' => $payment->getNumber(),
             'totalAmount' => $payment->getTotalAmount(),
             'currencyCode' => $payment->getCurrencyCode(),
@@ -38,15 +43,7 @@ class PaymentToJsonConverter
             'clientId' => $payment->getClientId(),
             'description' => $payment->getDescription(),
             'details' => $payment->getDetails(),
-            '_links' => [],
+            'gateway' => $this->gatewayConfigToJsonConverter->convert($payment->getGatewayConfig()),
         ];
-
-        foreach (['self', 'done', 'capture', 'authorize', 'notify'] as $name) {
-            if ($link = $payment->getValue('links', $name)) {
-                $normalizedPayment['_links'][$name] = ['href' => $link];
-            }
-        }
-
-        return $normalizedPayment;
     }
 }

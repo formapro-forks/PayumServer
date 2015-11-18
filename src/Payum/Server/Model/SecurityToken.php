@@ -119,7 +119,7 @@ class SecurityToken implements TokenInterface
     {
         $payment = $this->getPayment();
 
-        return $payment ? $payment->getGatewayName() : null;
+        return $payment ? $payment->getGatewayConfig()->getGatewayName() : null;
     }
 
     /**

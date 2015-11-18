@@ -39,7 +39,7 @@ class AuthorizeControllerTest extends ClientTestCase
 
         /** @var Payment $payment */
         $payment = $store->create();
-        $payment->setGatewayName(null);
+        $payment->getGatewayConfig()->setGatewayName(null);
         $payment->setId(uniqid());
 
         $store->update($payment);

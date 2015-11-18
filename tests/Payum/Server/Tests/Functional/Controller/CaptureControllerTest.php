@@ -39,12 +39,12 @@ class CaptureControllerTest extends ClientTestCase
 
         /** @var Payment $payment */
         $payment = $store->create();
-        $payment->setGatewayName(null);
+        $payment->getGatewayConfig()->setGatewayName(null);
         $payment->setId(uniqid());
 
         $store->update($payment);
 
-        $token = $payum->getTokenFactory()->createCaptureToken('', $payment, 'http://localhost');
+        $token = $payum->getTokenFactory()->createCaptureToken('itDoesNotMatter', $payment, 'http://localhost');
 
         $crawler = $this->getClient()->request('GET', $token->getTargetUrl());
 
@@ -87,7 +87,7 @@ class CaptureControllerTest extends ClientTestCase
 
         /** @var Payment $payment */
         $payment = $store->create();
-        $payment->setGatewayName('be2bill');
+        $payment->getGatewayConfig()->setGatewayName('be2bill');
         $payment->setId(uniqid());
 
         $store->update($payment);

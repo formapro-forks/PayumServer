@@ -21,7 +21,7 @@ class ApiProvider implements ServiceProviderInterface
     public function register(SilexApplication $app)
     {
         $app['api.view.payment_to_json_converter'] = function() use ($app) {
-            return new PaymentToJsonConverter($app['payum']);
+            return new PaymentToJsonConverter($app['payum'], $app['api.view.gateway_config_to_json_converter']);
         };
 
         $app['api.view.token_to_json_converter'] = function() use ($app) {

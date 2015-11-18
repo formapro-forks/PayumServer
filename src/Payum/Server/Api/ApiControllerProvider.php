@@ -1,20 +1,14 @@
 <?php
 namespace Payum\Server\Api;
 
-use Payum\Core\Bridge\Symfony\Reply\HttpResponse;
-use Payum\Core\Reply\ReplyInterface;
 use Payum\Server\Api\Controller\GatewayController;
 use Payum\Server\Api\Controller\GatewayMetaController;
 use Payum\Server\Api\Controller\PaymentController;
 use Payum\Server\Api\Controller\RootController;
 use Payum\Server\Api\Controller\TokenController;
-use Payum\Server\ReplyToJsonResponseConverter;
 use Silex\Application as SilexApplication;
 use Silex\ControllerCollection;
 use Silex\ServiceProviderInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ApiControllerProvider implements ServiceProviderInterface
 {
@@ -33,7 +27,8 @@ class ApiControllerProvider implements ServiceProviderInterface
                 $app['api.view.payment_to_json_converter'],
                 $app['form.factory'],
                 $app['api.view.form_to_json_converter'],
-                $app['url_generator']
+                $app['url_generator'],
+                $app['payum.gateway_config_storage']
             );
         });
 

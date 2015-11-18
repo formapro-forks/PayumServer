@@ -19,10 +19,7 @@ class CreatePaymentType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('gatewayName', 'payum_gateways_choice', [
-                'required' => false,
-                'empty_value' => '',
-            ])
+            ->add('gatewayConfig', 'create_payment_gateway_config')
             ->add('totalAmount', 'number', array(
                 'label' => 'Amount',
                 'constraints' => array(new NotBlank(), new Type(['type' => 'numeric']))

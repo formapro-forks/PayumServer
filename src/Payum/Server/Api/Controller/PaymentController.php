@@ -4,7 +4,6 @@ namespace Payum\Server\Api\Controller;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Payum;
 use Payum\Core\Registry\RegistryInterface;
-use Payum\Core\Request\Convert;
 use Payum\Core\Security\Util\Random;
 use Payum\Core\Storage\StorageInterface;
 use Payum\Server\Api\View\FormToJsonConverter;
@@ -47,24 +46,32 @@ class PaymentController
     private $urlGenerator;
 
     /**
+     * @var StorageInterface
+     */
+    private $gatewayConfigStorage;
+
+    /**
      * @param Payum $payum
      * @param PaymentToJsonConverter $paymentToJsonConverter
      * @param FormFactoryInterface $formFactory
      * @param FormToJsonConverter $formToJsonConverter
      * @param UrlGeneratorInterface $urlGenerator
+     * @param StorageInterface $gatewayConfigStorage
      */
     public function __construct(
         Payum $payum,
         PaymentToJsonConverter $paymentToJsonConverter,
         FormFactoryInterface $formFactory,
         FormToJsonConverter $formToJsonConverter,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        StorageInterface $gatewayConfigStorage
     ) {
         $this->payum = $payum;
         $this->formFactory = $formFactory;
         $this->formToJsonConverter = $formToJsonConverter;
         $this->paymentToJsonConverter = $paymentToJsonConverter;
         $this->urlGenerator = $urlGenerator;
+        $this->gatewayConfigStorage = $gatewayConfigStorage;
     }
 
     /**
@@ -87,42 +94,20 @@ class PaymentController
         /** @var Payment $payment */
         $payment = $form->getData();
         $payment->setId(Random::generateToken());
-
-        $storage = $this->payum->getStorage($payment);
-        $storage->update($payment);
-
         $payment->setNumber($payment->getNumber() ?: date('Ymd-'.mt_rand(10000, 99999)));
 
-        $storage->update($payment);
+        if ($payment->getGatewayConfig()->getGatewayName()) {
+            $payment->setGatewayConfig($this->gatewayConfigStorage->find($payment->getGatewayConfig()->getGatewayName()));
+        }
 
-        // TODO
-        $payment->setValue('links', 'done', 'http://dev.payum-server.com/client/index.html');
-
-        $payment->setValue('links', 'self', $this->urlGenerator->generate('payment_get', ['id' => $payment->getId()], true));
-
-        $token = $this->payum->getTokenFactory()->createAuthorizeToken($payment->getGatewayName(), $payment, $payment->getValue('links', 'done'), [
-            'payum_token' => null,
-            'payment' => $payment->getId(),
-        ]);
-        $payment->setValue('links', 'authorize', $token->getTargetUrl());
-
-        $token = $this->payum->getTokenFactory()->createCaptureToken($payment->getGatewayName(), $payment, $payment->getValue('links', 'done'), [
-            'payum_token' => null,
-            'payment' => $payment->getId(),
-        ]);
-        $payment->setValue('links', 'capture', $token->getTargetUrl());
-
-        $token = $this->payum->getTokenFactory()->createNotifyToken($payment->getGatewayName(), $payment);
-        $payment->setValue('links', 'notify', $token->getTargetUrl());
-
-        $storage->update($payment);
+        $this->payum->getStorage($payment)->update($payment);
 
         return new JsonResponse(
             array(
                 'payment' => $this->paymentToJsonConverter->convert($payment),
             ),
             201,
-            array('Location' => $payment->getValue('links', 'self'))
+            array('Location' => $this->urlGenerator->generate('payment_get', ['id' => $payment->getId()], true))
         );
     }
 
@@ -148,8 +133,11 @@ class PaymentController
         /** @var Payment $payment */
         $payment = $form->getData();
 
-        $storage = $this->payum->getStorage($payment);
-        $storage->update($payment);
+        if ($payment->getGatewayConfig()->getGatewayName()) {
+            $payment->setGatewayConfig($this->gatewayConfigStorage->find($payment->getGatewayConfig()->getGatewayName()));
+        }
+
+        $this->payum->getStorage($payment)->update($payment);
 
         return new JsonResponse(array(
             'payment' => $this->paymentToJsonConverter->convert($payment),

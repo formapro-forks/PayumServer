@@ -5,22 +5,19 @@ use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Database;
 use Payum\Core\Bridge\Symfony\Reply\HttpResponse;
 use Payum\Core\Bridge\Twig\TwigFactory;
-use Payum\Core\Exception\LogicException;
 use Payum\Core\Model\GatewayConfigInterface;
 use Payum\Core\Payum;
 use Payum\Core\PayumBuilder;
 use Payum\Core\Reply\ReplyInterface;
-use Payum\Core\Security\TokenInterface;
 use Payum\Core\Storage\StorageInterface;
 use Payum\Server\Action\AuthorizePaymentAction;
 use Payum\Server\Action\CapturePaymentAction;
 use Payum\Server\Action\ExecuteSameRequestWithPaymentDetailsAction;
 use Payum\Server\Action\ObtainMissingDetailsAction;
 use Payum\Server\Action\ObtainMissingDetailsForBe2BillAction;
-use Payum\Server\Controller\AuthorizeController;
-use Payum\Server\Controller\CaptureController;
 use Payum\Server\Extension\UpdatePaymentStatusExtension;
 use Payum\Server\Form\Type\ChooseGatewayType;
+use Payum\Server\Form\Type\CreatePaymentGatewayConfigType;
 use Payum\Server\Form\Type\CreatePaymentType;
 use Payum\Server\Form\Type\CreateTokenType;
 use Payum\Server\Form\Type\UpdatePaymentType;
@@ -35,7 +32,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ServiceProvider implements ServiceProviderInterface
 {
@@ -102,6 +98,7 @@ class ServiceProvider implements ServiceProviderInterface
         $app['form.types'] = $app->share($app->extend('form.types', function ($types) use ($app) {
             $types[] = new CreatePaymentType();
             $types[] = new UpdatePaymentType();
+            $types[] = new CreatePaymentGatewayConfigType();
             $types[] = new CreateTokenType();
             $types[] = new ChooseGatewayType();
 
@@ -156,12 +153,16 @@ class ServiceProvider implements ServiceProviderInterface
                     /** @var FormFactoryInterface $formFactory */
                     $formFactory = $app['form.factory'];
 
-                    $form = $formFactory->createNamed('', 'choose_gateway', $payment, [
+                    $form = $formFactory->createNamed('', 'choose_gateway', [
                         'action' => $token->getTargetUrl(),
                     ]);
 
                     $form->handleRequest($request);
                     if ($form->isSubmitted() && $form->isValid()) {
+                        /** @var StorageInterface $gatewayConfigStorage */
+                        $gatewayConfigStorage = $app['payum.gateway_config_storage'];
+                        $payment->setGatewayConfig($gatewayConfigStorage->find($form->getData()['gatewayName']));
+
                         $payum->getStorage($payment)->update($payment);
                     } else {
                         /** @var \Twig_Environment $twig */

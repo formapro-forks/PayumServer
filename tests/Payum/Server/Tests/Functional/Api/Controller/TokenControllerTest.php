@@ -47,7 +47,7 @@ class TokenControllerTest extends ClientTestCase
 
         /** @var Payment $payment */
         $payment = $store->create();
-        $payment->setGatewayName('offline');
+        $payment->getGatewayConfig()->setGatewayName('offline');
         $payment->setId(uniqid());
 
         $store->update($payment);
@@ -96,7 +96,7 @@ class TokenControllerTest extends ClientTestCase
 
         /** @var Payment $payment */
         $payment = $store->create();
-        $payment->setGatewayName('offline');
+        $payment->getGatewayConfig()->setGatewayName('offline');
         $payment->setId(uniqid());
 
         $store->update($payment);

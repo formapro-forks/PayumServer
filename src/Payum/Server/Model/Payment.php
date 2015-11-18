@@ -180,22 +180,6 @@ class Payment
     }
 
     /**
-     * @return string
-     */
-    public function getGatewayName()
-    {
-        return $this->getSelfValue('gatewayName');
-    }
-
-    /**
-     * @param string $gatewayName
-     */
-    public function setGatewayName($gatewayName)
-    {
-        $this->setSelfValue('gatewayName', $gatewayName);
-    }
-
-    /**
      * @return Payer
      */
     public function getPayer()
@@ -205,5 +189,25 @@ class Payment
         }
 
         return $this->getObject('self', 'payer', Payer::class);
+    }
+
+    /**
+     * @return GatewayConfig
+     */
+    public function getGatewayConfig()
+    {
+        if (false == $this->getValue('self', 'gatewayConfig')) {
+            $this->setObject('self', 'gatewayConfig', new GatewayConfig());
+        }
+
+        return $this->getObject('self', 'gatewayConfig', GatewayConfig::class);
+    }
+
+    /**
+     * @param GatewayConfig $gatewayConfig
+     */
+    public function setGatewayConfig(GatewayConfig $gatewayConfig)
+    {
+        $this->setObject('self', 'gatewayConfig', $gatewayConfig);
     }
 }

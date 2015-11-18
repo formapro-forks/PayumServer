@@ -30,7 +30,7 @@ class PaymentTest extends WebTestCase
         $payment->setCurrencyCode('USD');
         $payment->setDescription('theDesc');
         $payment->setNumber('theNumber');
-        $payment->setGatewayName('theGatewayName');
+        $payment->getGatewayConfig()->setGatewayName('theGatewayName');
 
         $storage->update($payment);
 
@@ -45,6 +45,7 @@ class PaymentTest extends WebTestCase
 
         $this->assertEquals('theClientEmail', $foundPayment->getClientEmail());
         $this->assertEquals('theClientId', $foundPayment->getClientId());
+        $this->assertEquals('theGatewayName', $foundPayment->getGatewayConfig()->getGatewayName());
     }
 
     public function testShouldAllowStorePaymentsDetails()
